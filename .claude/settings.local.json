@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(node server.js)",
+      "Bash(curl *)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(exit 0)",
+      "Bash(npm run *)",
+      "Bash(node *)"
+    ]
+  }
+}
