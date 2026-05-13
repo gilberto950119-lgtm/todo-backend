@@ -1,33 +1,42 @@
-// db.js
-// MongoDB에 한 번만 연결하고, 어디서든 같은 연결을 꺼내 쓸 수 있게 해주는 파일.
-
 const { MongoClient } = require('mongodb');
 
 let client;
 let db;
 
-// 서버가 시작될 때 1회 호출됩니다.
 async function connectDB() {
-  if (db) return db; // 이미 연결돼 있으면 재사용
+  if (db) return db;
 
   const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
   const dbName = process.env.MONGODB_DB || process.env.DB_NAME || 'todoapp';
 
+  console.log(`[env] Mongo URI present: ${Boolean(uri)}, DB name: ${dbName}`);
+
   if (!uri) {
-    throw new Error('.env 파일에 MONGODB_URI 또는 MONGO_URI가 설정돼 있지 않아요.');
+    throw new Error('Missing MONGODB_URI or MONGO_URI environment variable.');
   }
 
-  client = new MongoClient(uri);
-  await client.connect();
+  client = new MongoClient(uri, {
+    serverSelectionTimeoutMS: 10000,
+  });
+
+  try {
+    await client.connect();
+  } catch (error) {
+    console.error(`[MongoDB] connection failed: ${error.name}: ${error.message}`);
+    if (error.code) {
+      console.error(`[MongoDB] error code: ${error.code}`);
+    }
+    throw error;
+  }
+
   db = client.db(dbName);
-  console.log(`[MongoDB] 연결 성공 (db: ${dbName})`);
+  console.log(`[MongoDB] connected (db: ${dbName})`);
   return db;
 }
 
-// 라우트/컨트롤러에서 호출. 컬렉션 핸들을 돌려줍니다.
 function getCollection(name) {
   if (!db) {
-    throw new Error('DB가 아직 연결되지 않았어요. connectDB()부터 호출하세요.');
+    throw new Error('Database is not connected yet. Call connectDB() first.');
   }
   return db.collection(name);
 }
