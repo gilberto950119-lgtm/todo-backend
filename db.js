@@ -10,11 +10,11 @@ let db;
 async function connectDB() {
   if (db) return db; // 이미 연결돼 있으면 재사용
 
-  const uri = process.env.MONGODB_URI;
-  const dbName = process.env.MONGODB_DB || 'todoapp';
+  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+  const dbName = process.env.MONGODB_DB || process.env.DB_NAME || 'todoapp';
 
   if (!uri) {
-    throw new Error('.env 파일에 MONGODB_URI가 설정돼 있지 않아요.');
+    throw new Error('.env 파일에 MONGODB_URI 또는 MONGO_URI가 설정돼 있지 않아요.');
   }
 
   client = new MongoClient(uri);
